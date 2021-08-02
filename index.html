@@ -6,26 +6,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Website</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 </head>
 <body>
-    <form action="" method="">
+    <div id="successAlert" class="container-md mr-md-3 alert alert-success" role="alert">
+        You have successfully registered!
+    </div>
+    <div id="failAlert" class="container-md mr-md-3 alert alert-danger" role="alert">
+        You failed to register!
+    </div>
+    <form>
         <div class="container-md">
+            <label class="form-label mb-3"><b>Register</b></label>
             <div class="mb-3">
                 <label for="uname" class="form-label"><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="uname" required class="form-control">    
+                <input type="text" placeholder="Enter Username" name="uname" id="uname" required class="form-control">    
             </div>
             
             <div class="mb-3" class="form-label">
                 <label for="psw"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="psw" required class="form-control">    
+                <input type="password" placeholder="Enter Password" name="psw" id="psw" required class="form-control">    
             </div>
             <div>
-                <button class="btn btn-primary mb-3" type="submit">Login</button>
+                <button class="btn btn-primary mb-3" type="submit" onclick="signUp()">Register</button>
             </div>
             
         </div>
     </form>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script type="text/javascript   ">
+    // function
+    function showSuccesfulRegister(){
+        $("#successAlert").show();
+        $("#failAlert").hide();
+    }
+    function showfailRegister(){
+        $("#successAlert").hide();
+        $("#failAlert").show();
+    }
+    function hideAlert(){
+        $("#successAlert").hide();
+        $("#failAlert").hide();
+    }
+
+    //intial web load
+    window.onload = hideAlert();
+
+    // For AWS
+        var userPoolId = 'us-east-1_bNTowaCfw';
+        var clientId = '6nmc1h75upk303lpp1eufoubtk';
+        var region = 'us-east-1';
+        var identityPoolId = 'us-east-1:7a375aae-7b32-440e-8c9e-0d9fff99b48e';
+
+        var cognitoUser;
+        var idToken;
+        var userPool;
+        // var pooldata ={
+
+        // }
+
+
+    //auth to cognito with amplify
+    var username = document.getElementById('uname');
+    var password = document.getElementById('psw');
+
+    import Amplify, { Auth } from 'aws-amplify';
+
+    Amplify.configure({
+        Auth: {
+
+            // REQUIRED only for Federated Authentication - Amazon Cognito Identity Pool ID
+            identityPoolId: identityPoolId,
+
+            // REQUIRED - Amazon Cognito Region
+            region: region,
+
+            // OPTIONAL - Amazon Cognito Federated Identity Pool Region 
+            // Required only if it's different from Amazon Cognito Region
+
+            // OPTIONAL - Amazon Cognito User Pool ID
+            userPoolId: userPoolId,
+            }
+        })
+
+    async function signUp() {
+        try {
+            const { user } = await Auth.signUp({
+                username,
+                password,
+                attributes: {
+                    email,          // optional
+                    phone_number,   // optional - E.164 number convention
+                // other custom attributes 
+                }
+            });
+            showSuccesfulRegister();
+        } catch (error) {
+            showfailRegister();
+        }
+    }
+
+    async function signIn() {
+    try {
+        const user = await Auth.signIn(username, password);
+    } catch (error) {
+        console.log('error signing in', error);
+    }
+}  
+</script>
 </html>
